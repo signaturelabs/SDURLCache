@@ -290,8 +290,7 @@ static dispatch_queue_t get_disk_io_queue() {
 }
 
 - (void)createDiskCachePath {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    dispatch_async_afreentrant(get_disk_cache_queue(), ^{
         NSFileManager *fileManager = [[NSFileManager alloc] init];
         if (![fileManager fileExistsAtPath:_diskCachePath]) {
             [fileManager createDirectoryAtPath:_diskCachePath
@@ -526,6 +525,7 @@ static dispatch_queue_t get_disk_io_queue() {
     dispatch_async_afreentrant(get_disk_cache_queue(), ^{
         self.diskCacheInfo = nil;
     });
+    [self createDiskCachePath];
 }
 
 - (BOOL)isCached:(NSURL *)url {
